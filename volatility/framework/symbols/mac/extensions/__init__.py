@@ -465,3 +465,30 @@ class sockaddr(objects.StructType):
 
         return ip
 
+class sysctl_oid(objects.StructType):
+    def get_perms(self):
+        ret = ""
+
+        checks = [0x80000000, 0x40000000, 0x00800000]
+        perms  = ["R", "W", "L"]
+        
+        for (i, c) in enumerate(checks):
+            if c & self.oid_kind:
+                ret = ret + perms[i]
+            else:
+                ret = ret + "-"
+
+        return ret
+
+    def get_ctltype(self):
+        types = {1: 'CTLTYPE_NODE', 2: 'CTLTYPE_INT', 3: 'CTLTYPE_STRING', 4: 'CTLTYPE_QUAD', 5: 'CTLTYPE_OPAQUE'}
+
+        ctltype = self.oid_kind & 0xf
+
+        if 0 < ctltype < 6:
+            ret = types[ctltype]
+        else:
+            ret = ""
+
+        return ret
+
